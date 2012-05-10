@@ -13,23 +13,20 @@ have_func('rb_thread_blocking_region')
 have_func('rb_thread_io_blocking_region')
 
 checking_for "GCC 4+ atomic builtins" do
+  # we test CMPXCHG anyways even though we don't need it to filter out
+  # ancient i386-only targets without CMPXCHG
   src = <<SRC
 int main(int argc, char * const argv[]) {
-        volatile unsigned long i = 0;
+        unsigned long i = 0;
+        __sync_lock_test_and_set(&i, 0);
+        __sync_lock_test_and_set(&i, 1);
         __sync_add_and_fetch(&i, argc);
         __sync_sub_and_fetch(&i, argc);
         return 0;
 }
 SRC
 
-  if try_run(src)
-    # some systems target GCC for i386 and don't get the atomic builtins
-    # when building shared objects
-    arch = `#{CONFIG['CC']} -dumpmachine`.split(/-/)[0]
-    if arch == "i386" && $CFLAGS !~ /\b-march=/
-      $CFLAGS += " -march=i486 "
-    end
-
+  if try_link(src)
     $defs.push(format("-DHAVE_GCC_ATOMIC_BUILTINS"))
     true
   else
