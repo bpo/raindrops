@@ -120,5 +120,9 @@ class TestMiddleware < Test::Unit::TestCase
     def orig_body.to_path; "/dev/null"; end
     assert body.respond_to?(:to_path)
     assert_equal "/dev/null", body.to_path
+
+    def orig_body.body; "this is a body"; end
+    assert body.respond_to?(:body)
+    assert_equal "this is a body", body.body
   end
 end

@@ -1,7 +1,7 @@
 # -*- encoding: binary -*-
 # :stopdoc:
-# This class is by Raindrops::Middleware to proxy application response
-# bodies.  There should be no need to use it directly.
+# This class is used by Raindrops::Middleware to proxy application
+# response bodies.  There should be no need to use it directly.
 class Raindrops::Middleware::Proxy
   def initialize(body, stats)
     @body, @stats = body, stats
@@ -31,4 +31,11 @@ class Raindrops::Middleware::Proxy
     m = m.to_sym
     :close == m || @body.respond_to?(m)
   end
+
+  # Rack::BodyProxy objects use +method_missing+ to delegate methods
+  # to their bodies
+  def method_missing(*args, &block)
+    @body.send(*args, &block)
+  end
+
 end
