@@ -32,10 +32,9 @@ class Raindrops::Middleware::Proxy
     :close == m || @body.respond_to?(m)
   end
 
-  # Rack::BodyProxy objects use +method_missing+ to delegate methods
-  # to their bodies
+  # Avoid breaking users of non-standard extensions (e.g. #body)
+  # Rack::BodyProxy does the same.
   def method_missing(*args, &block)
     @body.send(*args, &block)
   end
-
 end
