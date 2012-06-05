@@ -67,6 +67,32 @@ class TestLinux < Test::Unit::TestCase
     assert_equal 1, stats[tmp.path].queued
   end
 
+  def test_unix_resolves_symlinks
+    tmp = Tempfile.new("\xde\xad\xbe\xef") # valid path, really :)
+    File.unlink(tmp.path)
+    us = UNIXServer.new(tmp.path)
+
+    # Create a symlink
+    destination = Tempfile.new("somethingelse")
+    destination.unlink # We need an available name, not an actual file
+    link = File.symlink(tmp, destination)
+
+    @to_close << UNIXSocket.new(tmp.path)
+    stats = unix_listener_stats
+    assert_equal 0, stats[link.path].active
+    assert_equal 1, stats[link.path].queued
+
+    @to_close << UNIXSocket.new(tmp.path)
+    stats = unix_listener_stats
+    assert_equal 0, stats[link.path].active
+    assert_equal 2, stats[link.path].queued
+
+    @to_close << us.accept
+    stats = unix_listener_stats
+    assert_equal 1, stats[link.path].active
+    assert_equal 1, stats[link.path].queued
+  end
+
   def test_tcp
     s = TCPServer.new(TEST_ADDR, 0)
     port = s.addr[1]

@@ -8,6 +8,8 @@
 # Instead of snapshotting, Raindrops::Aggregate::LastDataRecv may be used
 # to aggregate statistics from +all+ accepted sockets as they arrive
 # based on the +last_data_recv+ field in Raindrops::TCP_Info
+require 'pathname'
+
 module Raindrops::Linux
 
   # The standard proc path for active UNIX domain sockets, feel free to call
@@ -41,6 +43,7 @@ module Raindrops::Linux
     else
       paths = paths.map do |path|
         path = path.dup
+        path = Pathname.new(path).realpath.to_s
         path.force_encoding(Encoding::BINARY) if defined?(Encoding)
         rv[path]
         Regexp.escape(path)
