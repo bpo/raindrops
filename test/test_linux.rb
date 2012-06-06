@@ -73,24 +73,26 @@ class TestLinux < Test::Unit::TestCase
     us = UNIXServer.new(tmp.path)
 
     # Create a symlink
-    destination = Tempfile.new("somethingelse")
-    destination.unlink # We need an available name, not an actual file
-    link = File.symlink(tmp, destination)
+    link = Tempfile.new("somethingelse")
+    File.unlink(link.path) # We need an available name, not an actual file
+    File.symlink(tmp.path, link.path)
 
     @to_close << UNIXSocket.new(tmp.path)
     stats = unix_listener_stats
-    assert_equal 0, stats[link.path].active
-    assert_equal 1, stats[link.path].queued
+    assert_equal 0, stats[tmp.path].active
+    assert_equal 1, stats[tmp.path].queued
 
-    @to_close << UNIXSocket.new(tmp.path)
-    stats = unix_listener_stats
+    @to_close << UNIXSocket.new(link.path)
+    stats = unix_listener_stats([link.path])
     assert_equal 0, stats[link.path].active
     assert_equal 2, stats[link.path].queued
 
+    assert_equal stats[link.path].object_id, stats[tmp.path].object_id
+
     @to_close << us.accept
     stats = unix_listener_stats
-    assert_equal 1, stats[link.path].active
-    assert_equal 1, stats[link.path].queued
+    assert_equal 1, stats[tmp.path].active
+    assert_equal 1, stats[tmp.path].queued
   end
 
   def test_tcp

@@ -43,9 +43,14 @@ module Raindrops::Linux
     else
       paths = paths.map do |path|
         path = path.dup
-        path = Pathname.new(path).realpath.to_s
         path.force_encoding(Encoding::BINARY) if defined?(Encoding)
-        rv[path]
+        if File.symlink?(path)
+          link = path
+          path = Pathname.new(link).realpath.to_s
+          rv[link] = rv[path] # vivify ListenerStats
+        else
+          rv[path] # vivify ListenerStats
+        end
         Regexp.escape(path)
       end
     end
