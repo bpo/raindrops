@@ -35,6 +35,6 @@ class Raindrops::Middleware::Proxy
   # Avoid breaking users of non-standard extensions (e.g. #body)
   # Rack::BodyProxy does the same.
   def method_missing(*args, &block)
-    @body.send(*args, &block)
+    @body.__send__(*args, &block)
   end
 end
