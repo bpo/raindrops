@@ -54,14 +54,20 @@ module Raindrops::Linux
         Regexp.escape(path)
       end
     end
-    paths = /^\w+: \d+ \d+ 00000000 \d+ (\d+)\s+\d+ (#{paths.join('|')})$/n
+    paths = /^\w+: \d+ \d+ (\d+) \d+ (\d+)\s+\d+ (#{paths.join('|')})$/n
 
     # no point in pread since we can't stat for size on this file
     File.read(*PROC_NET_UNIX_ARGS).scan(paths) do |s|
       path = s[-1]
-      case s[0].to_i
-      when 2 then rv[path].queued += 1
-      when 3 then rv[path].active += 1
+      case s[0]
+      when "00000000" # client sockets
+        case s[1].to_i
+        when 2 then rv[path].queued += 1
+        when 3 then rv[path].active += 1
+        end
+      else
+        # listeners, vivify empty stats
+        rv[path]
       end
     end
 
