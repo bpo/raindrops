@@ -143,8 +143,12 @@ class Raindrops::Watcher
   def call(env)
     @start.synchronize { @thr ||= aggregator_thread(env["rack.logger"]) }
     case env["REQUEST_METHOD"]
-    when "HEAD", "GET"
+    when "GET"
       get env
+    when "HEAD"
+      r = get(env)
+      r[2] = []
+      r
     when "POST"
       post env
     else
