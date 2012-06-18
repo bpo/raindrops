@@ -156,6 +156,7 @@ class TestWatcher < Test::Unit::TestCase
     @ios << @srv.accept
     assert_raises(Errno::EAGAIN) { @srv.accept_nonblock }
     sleep 0.1
+    env = @req.class.env_for "/queued/#@addr.txt"
     status, headers, body = @app.call(env.dup)
     assert headers["X-Last-Peak-At"], headers.inspect
     assert_nothing_raised { Time.parse(headers["X-Last-Peak-At"]) }
