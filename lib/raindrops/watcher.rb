@@ -337,7 +337,9 @@ class Raindrops::Watcher
       "<table><tr>" \
         "<th>address</th><th>active</th><th>queued</th><th>reset</th>" \
       "</tr>" <<
-      all.map do |addr,stats|
+      all.sort do |a,b|
+        a[0] <=> b[0] # sort by addr
+      end.map do |addr,stats|
         e_addr = escape addr
         "<tr>" \
           "<td><a href='/tail/#{e_addr}.txt' " \
