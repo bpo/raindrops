@@ -260,7 +260,7 @@ class Raindrops::Watcher
       headers.map { |k,v|
         "<tr><td>#{k.gsub(/^X-/, '')}</td><td>#{v}</td></tr>"
       }.join << "</table><pre>#{escape_html agg}</pre>" \
-      "<form action='/reset/#{escape addr}' method='post'>" \
+      "<form action='../reset/#{escape addr}' method='post'>" \
       "<input type='submit' name='x' value='reset' /></form>" \
       "</body>"
     headers["Content-Type"] = "text/html"
@@ -346,14 +346,14 @@ class Raindrops::Watcher
       end.map do |addr,stats|
         e_addr = escape addr
         "<tr>" \
-          "<td><a href='/tail/#{e_addr}.txt' " \
+          "<td><a href='tail/#{e_addr}.txt' " \
             "title='&quot;tail&quot; output in real time'" \
             ">#{escape_html addr}</a></td>" \
-          "<td><a href='/active/#{e_addr}.html' " \
+          "<td><a href='active/#{e_addr}.html' " \
             "title='show active connection stats'>#{stats.active}</a></td>" \
-          "<td><a href='/queued/#{e_addr}.html' " \
+          "<td><a href='queued/#{e_addr}.html' " \
             "title='show queued connection stats'>#{stats.queued}</a></td>" \
-          "<td><form action='/reset/#{e_addr}' method='post'>" \
+          "<td><form action='reset/#{e_addr}' method='post'>" \
             "<input title='reset statistics' " \
               "type='submit' name='x' value='x' /></form></td>" \
         "</tr>" \
