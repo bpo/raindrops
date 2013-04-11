@@ -131,6 +131,7 @@ void Init_raindrops_linux_tcp_info(void)
 	cTCP_Info = rb_define_class_under(cRaindrops, "TCP_Info", rb_cObject);
 	rb_define_alloc_func(cTCP_Info, alloc);
 	rb_define_private_method(cTCP_Info, "initialize", init, 1);
+	rb_define_method(cTCP_Info, "get!", init, 1);
 
 #define TCPI_DEFINE_METHOD(x) \
 	rb_define_method(cTCP_Info, #x, tcp_info_##x, 0)

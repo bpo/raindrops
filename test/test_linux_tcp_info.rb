@@ -12,6 +12,7 @@ class TestLinuxTCP_Info < Test::Unit::TestCase
   # Linux kernel commit 5ee3afba88f5a79d0bff07ddd87af45919259f91
   TCP_INFO_useful_listenq = `uname -r`.strip >= '2.6.24'
 
+
   def test_tcp_server
     s = TCPServer.new(TEST_ADDR, 0)
     rv = Raindrops::TCP_Info.new s
@@ -23,6 +24,11 @@ class TestLinuxTCP_Info < Test::Unit::TestCase
     a = s.accept
     tmp = Raindrops::TCP_Info.new s
     assert_equal 0, tmp.unacked
+    before = tmp.object_id
+
+    tmp.get!(s)
+    assert_equal before, tmp.object_id
+
     ensure
       c.close if c
       a.close if a
@@ -35,6 +41,7 @@ class TestLinuxTCP_Info < Test::Unit::TestCase
     tcp_info_methods = tmp.methods - Object.new.methods
     assert tcp_info_methods.size >= 32
     tcp_info_methods.each do |m|
+      next if m.to_sym == :get!
       val = tmp.__send__ m
       assert_kind_of Integer, val
       assert val >= 0
