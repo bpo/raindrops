@@ -326,11 +326,13 @@ void Init_raindrops_linux_inet_diag(void);
 void Init_raindrops_linux_tcp_info(void);
 #endif
 
-#ifndef _SC_NPROCESSORS_ONLN
-#  ifdef _SC_NPROC_ONLN
-#    define _SC_NPROCESSORS_ONLN _SC_NPROC_ONLN
+#ifndef _SC_NPROCESSORS_CONF
+#  if defined _SC_NPROCESSORS_ONLN
+#    define _SC_NPROCESSORS_CONF _SC_NPROCESSORS_ONLN
+#  elif defined _SC_NPROC_ONLN
+#    define _SC_NPROCESSORS_CONF _SC_NPROC_ONLN
 #  elif defined _SC_CRAY_NCPU
-#    define _SC_NPROCESSORS_ONLN _SC_CRAY_NCPU
+#    define _SC_NPROCESSORS_CONF _SC_CRAY_NCPU
 #  endif
 #endif
 
@@ -359,8 +361,8 @@ void Init_raindrops_ext(void)
 	VALUE cRaindrops = rb_define_class("Raindrops", rb_cObject);
 	long tmp = 2;
 
-#ifdef _SC_NPROCESSORS_ONLN
-	tmp = sysconf(_SC_NPROCESSORS_ONLN);
+#ifdef _SC_NPROCESSORS_CONF
+	tmp = sysconf(_SC_NPROCESSORS_CONF);
 #endif
 	/* no point in padding on single CPU machines */
 	if (tmp == 1)
