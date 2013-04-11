@@ -323,7 +323,7 @@ class Raindrops::Watcher
     res = Rack::Response.new
     url = req.referer || "#{req.host_with_port}/"
     res.redirect(url)
-    res.content_type.replace "text/plain"
+    res["Content-Type"] = "text/plain"
     res.write "Redirecting to #{url}"
     res.finish
   end
