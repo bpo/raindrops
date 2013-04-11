@@ -189,7 +189,7 @@ static struct listen_stats *stats_for(st_table *table, struct inet_diag_msg *r)
 	struct listen_stats *stats;
 	size_t keylen;
 	size_t portlen = sizeof("65535");
-	union any_addr sa = { 0 };
+	union any_addr sa;
 	socklen_t len = sizeof(struct sockaddr_storage);
 	int rc;
 	int flags = NI_NUMERICHOST | NI_NUMERICSERV;
