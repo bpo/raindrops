@@ -70,8 +70,8 @@ static ID id_new;
 
 struct listen_stats {
 	uint32_t active;
-	uint32_t listener_p:1;
-	uint32_t queued:31;
+	uint32_t queued;
+	uint32_t listener_p;
 };
 
 #define OPLEN (sizeof(struct inet_diag_bc_op) + \
