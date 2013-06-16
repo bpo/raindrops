@@ -586,8 +586,6 @@ static VALUE tcp_stats(struct nogvl_args *args, VALUE addr)
  */
 static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 {
-	VALUE *ary;
-	long i;
 	VALUE rv = rb_hash_new();
 	struct nogvl_args args;
 	VALUE addrs, sock;
@@ -610,20 +608,26 @@ static VALUE tcp_listener_stats(int argc, VALUE *argv, VALUE self)
 	case T_STRING:
 		rb_hash_aset(rv, addrs, tcp_stats(&args, addrs));
 		return rv;
-	case T_ARRAY:
-		ary = RARRAY_PTR(addrs);
-		i = RARRAY_LEN(addrs);
-		if (i == 1) {
-			rb_hash_aset(rv, *ary, tcp_stats(&args, *ary));
+	case T_ARRAY: {
+		long i;
+		long len = RARRAY_LEN(addrs);
+		VALUE cur;
+
+		if (len == 1) {
+			cur = rb_ary_entry(addrs, 0);
+
+			rb_hash_aset(rv, cur, tcp_stats(&args, cur));
 			return rv;
 		}
-		for (; --i >= 0; ary++) {
+		for (i = 0; i < len; i++) {
 			union any_addr check;
+			VALUE cur = rb_ary_entry(addrs, i);
 
-			parse_addr(&check, *ary);
-			rb_hash_aset(rv, *ary, Qtrue);
+			parse_addr(&check, cur);
+			rb_hash_aset(rv, cur, Qtrue);
 		}
 		/* fall through */
+	}
 	case T_NIL:
 		args.table = st_init_strtable();
 		gen_bytecode_all(&args.iov[2]);
