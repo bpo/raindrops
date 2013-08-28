@@ -20,6 +20,7 @@ int main(int argc, char * const argv[]) {
         unsigned long i = 0;
         __sync_lock_test_and_set(&i, 0);
         __sync_lock_test_and_set(&i, 1);
+        __sync_bool_compare_and_swap(&i, 0, 1);
         __sync_add_and_fetch(&i, argc);
         __sync_sub_and_fetch(&i, argc);
         return 0;
@@ -30,7 +31,17 @@ SRC
     $defs.push(format("-DHAVE_GCC_ATOMIC_BUILTINS"))
     true
   else
-    false
+    # some compilers still target 386 by default, but we need at least 486
+    # to run atomic builtins.
+    prev_cflags = $CFLAGS
+    $CFLAGS += " -march=i486 "
+    if try_link(src)
+      $defs.push(format("-DHAVE_GCC_ATOMIC_BUILTINS"))
+      true
+    else
+      prev_cflags = $CFLAGS
+      false
+    end
   end
 end or have_header('atomic_ops.h') or abort <<-SRC
 
