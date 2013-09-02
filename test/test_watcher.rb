@@ -154,7 +154,12 @@ class TestWatcher < Test::Unit::TestCase
     assert_equal before, headers["X-Last-Peak-At"], headers.inspect
 
     @ios << @srv.accept
-    assert_raises(Errno::EAGAIN) { @srv.accept_nonblock }
+    begin
+      @srv.accept_nonblock
+      assert false, "we should not get here"
+    rescue => e
+      assert_kind_of Errno::EAGAIN, e
+    end
     sleep 0.1
     env = @req.class.env_for "/queued/#@addr.txt"
     status, headers, body = @app.call(env.dup)
