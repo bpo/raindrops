@@ -134,12 +134,49 @@ static int st_free_data(st_data_t key, st_data_t value, st_data_t ignored)
 	return ST_DELETE;
 }
 
+/*
+ * call-seq:
+ *      remove_scope_id(ip_address)
+ *
+ * Returns copy of IP address with Scope ID removed,
+ * if address has it (only IPv6 actually may have it).
+ */
+static VALUE remove_scope_id(const char *addr)
+{
+	VALUE rv = rb_str_new2(addr);
+	long len = RSTRING_LEN(rv);
+	char *ptr = RSTRING_PTR(rv);
+	char *pct = memchr(ptr, '%', len);
+
+	/*
+	 * remove scoped portion
+	 * Ruby equivalent: rv.sub!(/%([^\]]*)\]/, "]")
+	 */
+	if (pct) {
+		size_t newlen = pct - ptr;
+		char *rbracket = memchr(pct, ']', len - newlen);
+
+		if (rbracket) {
+			size_t move = len - (rbracket - ptr);
+
+			memmove(pct, rbracket, move);
+			newlen += move;
+
+			rb_str_set_len(rv, newlen);
+		} else {
+			rb_raise(rb_eArgError,
+				"']' not found in IPv6 addr=%s", ptr);
+                }
+        }
+        return rv;
+}
+
 static int st_to_hash(st_data_t key, st_data_t value, VALUE hash)
 {
 	struct listen_stats *stats = (struct listen_stats *)value;
 
 	if (stats->listener_p) {
-		VALUE k = rb_str_new2((const char *)key);
+		VALUE k = remove_scope_id((const char *)key);
 		VALUE v = rb_listen_stats(stats);
 
 		OBJ_FREEZE(k);
@@ -153,7 +190,7 @@ static int st_AND_hash(st_data_t key, st_data_t value, VALUE hash)
 	struct listen_stats *stats = (struct listen_stats *)value;
 
 	if (stats->listener_p) {
-		VALUE k = rb_str_new2((const char *)key);
+		VALUE k = remove_scope_id((const char *)key);
 
 		if (rb_hash_lookup(hash, k) == Qtrue) {
 			VALUE v = rb_listen_stats(stats);
