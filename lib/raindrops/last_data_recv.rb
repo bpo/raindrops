@@ -73,7 +73,9 @@ class Raindrops::LastDataRecv
   # :startdoc
 
   def initialize(opts = {})
-    Raindrops::Aggregate::LastDataRecv.cornify! if defined?(Unicorn)
+    if defined?(Unicorn::HttpServer::LISTENERS)
+      Raindrops::Aggregate::LastDataRecv.cornify!
+    end
     @aggregate =
       opts[:aggregate] || Raindrops::Aggregate::LastDataRecv.default_aggregate
   end
