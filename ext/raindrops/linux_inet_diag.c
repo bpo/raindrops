@@ -13,7 +13,8 @@
 #endif
 
 /* partial emulation of the 1.9 rb_thread_blocking_region under 1.8 */
-#ifndef HAVE_RB_THREAD_BLOCKING_REGION
+#if !defined(HAVE_RB_THREAD_BLOCKING_REGION) && \
+    !defined(HAVE_RB_THREAD_IO_BLOCKING_REGION)
 #  include <rubysig.h>
 #  define RUBY_UBF_IO ((rb_unblock_function_t *)-1)
 typedef void rb_unblock_function_t(void *);
