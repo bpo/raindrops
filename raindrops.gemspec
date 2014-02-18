@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('posix_mq', '~> 2.0')
   s.add_development_dependency('rack', '~> 1.2')
   s.add_development_dependency('unicorn', '>= 0.98')
+  s.add_development_dependency('wrongdoc', ['~> 1.6.2', '>= 1.6.2'])
 
   # s.licenses = %w(LGPLv3) # accessor not compatible with older RubyGems
 end
